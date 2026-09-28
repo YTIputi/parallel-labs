@@ -1,0 +1,13 @@
+name: Run on Windows
+on: [push, workflow_dispatch]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ilammy/msvc-dev-cmd@v1
+      - name: Build
+        run: cl /O2 /EHsc /std:c++17 main.cpp
+      - name: Run
+        run: .\main.exe
