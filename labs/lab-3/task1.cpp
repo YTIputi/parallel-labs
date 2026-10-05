@@ -1,6 +1,3 @@
-// Lab 3, variant 6: sorting doubles
-// x_n = n^2 / (1 + n^2) * sin(n), n = 0..N-1, N = 50 000 000
-// std::sort vs concurrency::parallel_sort vs concurrency::parallel_buffered_sort, std::vector
 #include <iostream>
 #include <iomanip>
 #include <vector>
@@ -13,9 +10,8 @@
 #include <ppl.h>
 
 const int N = 50000000;
-const int RUNS = 3;  // each sort is timed 3 times, the best time is reported
+const int RUNS = 3;
 
-// Times sortFn on a fresh copy of src, returns the best of RUNS; sorted result stays in out
 double timeSort(const std::vector<double>& src, std::vector<double>& out,
                 const std::function<void(std::vector<double>&)>& sortFn) {
     double best = 1e100;
