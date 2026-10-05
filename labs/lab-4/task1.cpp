@@ -1,9 +1,3 @@
-// Lab 4, variant 6: sorting integers
-// x_n = 4*10^9 * n^2 / (1 + n^2) * |sin(n)|, n = 0..N-1, N = 50 000 000
-// std::sort vs parallel_sort vs parallel_buffered_sort vs parallel_radixsort, std::vector
-//
-// Values reach almost 4*10^9 > INT_MAX (2.1*10^9), so the type is unsigned int
-// (max 4 294 967 295). parallel_radixsort also expects unsigned integer keys.
 #include <iostream>
 #include <iomanip>
 #include <vector>
@@ -17,7 +11,7 @@
 
 using T = unsigned int;
 const int N = 50000000;
-const int RUNS = 3;  // each sort is timed 3 times, the best time is reported
+const int RUNS = 3;
 
 double timeSort(const std::vector<T>& src, std::vector<T>& out,
                 const std::function<void(std::vector<T>&)>& sortFn) {
