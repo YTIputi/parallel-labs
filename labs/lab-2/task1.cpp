@@ -1,7 +1,3 @@
-// Lab 2, variant 7: std::transform vs concurrency::parallel_transform
-// x_n = 100 cos n, n = 1..N, y_n = f(x_n), N = 2000
-// f(x) = sum_{k=1}^{M} sum_{j=1}^{M} (x^2 + x)(k - j) / (x^2 + k^3 + j^3) * sin(kx) cos(jx),
-// M = max(20, [20|x|])
 #include <iostream>
 #include <iomanip>
 #include <vector>
@@ -14,7 +10,6 @@
 #include <thread>
 #include <ppl.h>
 
-// Optimized: sin(kx), cos(jx), k^3 are computed once per x (2M trig calls instead of 2M^2).
 double f(double x) {
     const int M = std::max(20, static_cast<int>(20.0 * std::fabs(x)));
     const double x2 = x * x;
