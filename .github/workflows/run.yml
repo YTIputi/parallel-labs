@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
     inputs:
       path:
-        description: 'Файл (labs/lab-1/task1.cpp) или папка (labs/lab-1) — тогда запустятся все .cpp в ней'
+        description: 'C++: файл (labs/lab-1/task1.cpp) или папка (labs/lab-1). C#: папка с .csproj (labs/cs-I)'
         required: true
         default: 'labs/lab-1'
 
@@ -17,33 +17,52 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: ilammy/msvc-dev-cmd@v1
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
 
       - name: Build and run
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
           $target = "${{ inputs.path }}"
-          if (Test-Path $target -PathType Container) {
+          $cpu = (Get-CimInstance Win32_Processor | Select-Object -First 1).Name
+
+          function Save-Result($dir, $name, $text, $tool) {
+            $resDir = Join-Path $dir 'results'
+            New-Item -ItemType Directory -Force -Path $resDir | Out-Null
+            $header = "_Run: $(Get-Date -Format 'yyyy-MM-dd HH:mm') UTC, CPU: $cpu, ${tool}_`n`n"
+            Set-Content -Path (Join-Path $resDir "$name.md") -Value ($header + $text) -Encoding utf8NoBOM
+            Write-Host $text
+            Add-Content -Path $env:GITHUB_STEP_SUMMARY -Value ($header + $text)
+          }
+
+          # ---------- C#: папка с проектом .csproj ----------
+          $isDir = Test-Path $target -PathType Container
+          if ($isDir -and (Get-ChildItem $target -Filter *.csproj)) {
+            $dir = (Resolve-Path $target).Path
+            Write-Host "===== C# project: $target ====="
+            dotnet build $dir -c Release --nologo
+            if ($LASTEXITCODE -ne 0) { throw "Build failed: $target" }
+            $text = dotnet run --project $dir -c Release --no-build | Out-String
+            if ($LASTEXITCODE -ne 0) { throw "Run failed: $target" }
+            Save-Result $dir 'Program' $text ".NET $(dotnet --version) Release"
+            exit 0
+          }
+
+          # ---------- C++: файл или все .cpp в папке ----------
+          if ($isDir) {
             $files = Get-ChildItem $target -Filter *.cpp | Sort-Object Name
           } else {
             $files = @(Get-Item $target)
           }
-          $cpu = (Get-CimInstance Win32_Processor | Select-Object -First 1).Name
           foreach ($f in $files) {
             Write-Host "===== $($f.Name) ====="
             cl /nologo /O2 /EHsc /std:c++17 /Fe:app.exe $f.FullName
             if ($LASTEXITCODE -ne 0) { throw "Build failed: $($f.Name)" }
-
-            $resDir = Join-Path $f.DirectoryName 'results'
-            New-Item -ItemType Directory -Force -Path $resDir | Out-Null
-            $out = Join-Path $resDir ($f.BaseName + '.md')
-
             $text = .\app.exe | Out-String
             if ($LASTEXITCODE -ne 0) { throw "Run failed: $($f.Name)" }
-            $header = "_Run: $(Get-Date -Format 'yyyy-MM-dd HH:mm') UTC, CPU: $cpu, MSVC Release /O2_`n`n"
-            Set-Content -Path $out -Value ($header + $text) -Encoding utf8NoBOM
-            Write-Host $text
-            Add-Content -Path $env:GITHUB_STEP_SUMMARY -Value ($header + $text)
+            Save-Result $f.DirectoryName $f.BaseName $text 'MSVC Release /O2'
           }
 
       - name: Commit results
