@@ -1,14 +1,3 @@
-// Задание II (C#), вариант 7
-// Заполнить массив X значениями x_n = 100 cos n, n = 0..N, N = 200. Вычислить S = sum_{n=0}^{N} f(x_n).
-// Сравнить операцию foreach и метод Parallel.ForEach класса System.Threading.Tasks.Parallel.
-//
-// f(x) = sum_{k=1}^{M} sum_{j=1}^{M} (x^2 + x)(k - j) / (x^2 + k^3 + j^3) * sin(kx) * cos(jx),
-// M = max(20, [20|x|])
-//
-// Параллельная сумма сделана двумя способами из лекции:
-//   a) Parallel.ForEach + lock на каждом сложении;
-//   b) Parallel.ForEach с локальной суммой потока (localInit / localFinally).
-
 using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
@@ -45,35 +34,32 @@ class Program
         double[] X = new double[N + 1];
         for (int n = 0; n <= N; n++) X[n] = 100 * Math.Cos(n);
 
-        F(1.0);   // прогрев JIT
+        F(1.0);
 
-        // Последовательно: foreach
         var sw = Stopwatch.StartNew();
         double Sseq = 0;
         foreach (double x in X) Sseq += F(x);
         sw.Stop();
         double tSeq = sw.Elapsed.TotalSeconds;
 
-        // a) Parallel.ForEach + lock: общая переменная S защищена блокировкой
         object locker = new object();
         double Slock = 0;
         sw.Restart();
         Parallel.ForEach(X, x =>
         {
-            double tmp = F(x);              // долгое вычисление — без блокировки
-            lock (locker) { Slock += tmp; } // короткое сложение — под блокировкой
+            double tmp = F(x);
+            lock (locker) { Slock += tmp; }
         });
         sw.Stop();
         double tLock = sw.Elapsed.TotalSeconds;
 
-        // b) Parallel.ForEach с локальной суммой каждого потока
         double Slocal = 0;
         sw.Restart();
         Parallel.ForEach(
             X,
-            () => 0.0,                                        // localInit: своя сумма потока = 0
-            (x, loopState, local) => local + F(x),            // тело: прибавляем к своей сумме
-            local => { lock (locker) { Slocal += local; } }   // localFinally: один раз на поток
+            () => 0.0,
+            (x, loopState, local) => local + F(x),
+            local => { lock (locker) { Slocal += local; } }
         );
         sw.Stop();
         double tLocal = sw.Elapsed.TotalSeconds;
