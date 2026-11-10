@@ -1,0 +1,15 @@
+D:\a\parallel-labs\parallel-labs\labs\cs-II\bin\x64\Release\net8.0\Task.exe
+D:\a\parallel-labs\parallel-labs\labs\cs-II\bin\x64\Release\net8.0\Task.deps.json
+D:\a\parallel-labs\parallel-labs\labs\cs-II\bin\x64\Release\net8.0\Task.runtimeconfig.json
+D:\a\parallel-labs\parallel-labs\labs\cs-II\bin\x64\Release\net8.0\Task.dll
+D:\a\parallel-labs\parallel-labs\labs\cs-II\bin\x64\Release\net8.0\Task.pdb
+D:\a\parallel-labs\parallel-labs\labs\cs-II\obj\x64\Release\net8.0\Task.GeneratedMSBuildEditorConfig.editorconfig
+D:\a\parallel-labs\parallel-labs\labs\cs-II\obj\x64\Release\net8.0\Task.AssemblyInfoInputs.cache
+D:\a\parallel-labs\parallel-labs\labs\cs-II\obj\x64\Release\net8.0\Task.AssemblyInfo.cs
+D:\a\parallel-labs\parallel-labs\labs\cs-II\obj\x64\Release\net8.0\Task.csproj.CoreCompileInputs.cache
+D:\a\parallel-labs\parallel-labs\labs\cs-II\obj\x64\Release\net8.0\Task.sourcelink.json
+D:\a\parallel-labs\parallel-labs\labs\cs-II\obj\x64\Release\net8.0\Task.dll
+D:\a\parallel-labs\parallel-labs\labs\cs-II\obj\x64\Release\net8.0\refint\Task.dll
+D:\a\parallel-labs\parallel-labs\labs\cs-II\obj\x64\Release\net8.0\Task.pdb
+D:\a\parallel-labs\parallel-labs\labs\cs-II\obj\x64\Release\net8.0\Task.genruntimeconfig.cache
+D:\a\parallel-labs\parallel-labs\labs\cs-II\obj\x64\Release\net8.0\ref\Task.dll
