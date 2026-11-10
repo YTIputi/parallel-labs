@@ -1,15 +1,15 @@
-_Run: 2026-11-10 11:58 UTC, CPU: AMD EPYC 9V45 96-Core Processor                , .NET 10.0.403 Release_
+_Run: 2026-11-10 12:49 UTC, CPU: INTEL(R) XEON(R) PLATINUM 8573C, .NET 10.0.403 Release_
 
 ## Task I (C#), variant 7: for vs Parallel.For
 
-N = 200 (n = 0..200), processors = 4
+N = 200 (n = 0..200), processors = 4, time = median of 5 runs
 
 | Version | Time, s |
 |---|---|
-| for | 0.4107 |
-| Parallel.For | 0.4138 |
+| for | 0.4601 |
+| Parallel.For | 0.2362 |
 
-Speedup: **0.99x**
+Speedup: **1.95x**
 
 Max |Y_seq - Y_par| = 0.0E+000
 
