@@ -1,11 +1,3 @@
-// Задание III (C#), вариант 7
-// То же, что II, но в качестве X используются контейнеры List, Stack и Queue .NET.
-// x_n = 100 cos n, n = 0..N, N = 200. Вычислить S = sum_{n=0}^{N} f(x_n).
-// Сравнить операцию foreach и метод Parallel.ForEach.
-//
-// f(x) = sum_{k=1}^{M} sum_{j=1}^{M} (x^2 + x)(k - j) / (x^2 + k^3 + j^3) * sin(kx) * cos(jx),
-// M = max(20, [20|x|])
-
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -37,18 +29,14 @@ class Program
         return (x2 + x) * sum;
     }
 
-    // Один и тот же тест для любого контейнера: List, Stack и Queue
-    // все реализуют интерфейс IEnumerable<double>, по которому работают и foreach, и Parallel.ForEach.
     static void RunTest(string name, IEnumerable<double> X)
     {
-        // Последовательно: foreach
         var sw = Stopwatch.StartNew();
         double Sseq = 0;
         foreach (double x in X) Sseq += F(x);
         sw.Stop();
         double tSeq = sw.Elapsed.TotalSeconds;
 
-        // Параллельно: Parallel.ForEach с локальной суммой потока
         object locker = new object();
         double Spar = 0;
         sw.Restart();
@@ -74,12 +62,12 @@ class Program
         for (int n = 0; n <= N; n++)
         {
             double x = 100 * Math.Cos(n);
-            list.Add(x);       // в конец
-            stack.Push(x);     // на вершину (обход будет в обратном порядке)
-            queue.Enqueue(x);  // в конец очереди
+            list.Add(x);
+            stack.Push(x);
+            queue.Enqueue(x);
         }
 
-        F(1.0);   // прогрев JIT
+        F(1.0);
 
         Console.WriteLine("## Task III (C#), variant 7: foreach vs Parallel.ForEach (List / Stack / Queue)\n");
         Console.WriteLine($"N = {N} (n = 0..{N}), processors = {Environment.ProcessorCount}\n");
