@@ -1,17 +1,9 @@
-// Задание I (C#), вариант 7
-// Заполнить массив Y значениями f(x_n), x_n = 100 cos n, n = 0..N, N = 200.
-// Сравнить оператор for и метод Parallel.For класса System.Threading.Tasks.Parallel.
-//
-// f(x) = sum_{k=1}^{M} sum_{j=1}^{M} (x^2 + x)(k - j) / (x^2 + k^3 + j^3) * sin(kx) * cos(jx),
-// M = max(20, [20|x|])
-
 using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
 
 class Program
 {
-    // Замер: один прогревочный прогон (JIT, запуск потоков пула) + R замеров, берётся медиана
     const int R = 5;
     static double Measure(Action body)
     {
@@ -34,7 +26,6 @@ class Program
         int M = Math.Max(20, (int)Math.Floor(20 * Math.Abs(x)));
         double x2 = x * x;
 
-        // sin(kx), cos(jx) и k^3 зависят только от одного индекса — считаем их заранее
         double[] s = new double[M + 1], c = new double[M + 1], cube = new double[M + 1];
         for (int i = 1; i <= M; i++)
         {
@@ -63,19 +54,17 @@ class Program
         double[] Yseq = new double[N + 1];
         double[] Ypar = new double[N + 1];
 
-        // Последовательно: оператор for
         double tSeq = Measure(() =>
         {
             for (int n = 0; n <= N; n++)
                 Yseq[n] = F(X[n]);
         });
 
-        // Параллельно: Parallel.For (верхняя граница не включается, поэтому N + 1)
         double tPar = Measure(() =>
         {
             Parallel.For(0, N + 1, n =>
             {
-                Ypar[n] = F(X[n]);   // каждая итерация пишет в свою ячейку — гонки нет
+                Ypar[n] = F(X[n]);
             });
         });
 
