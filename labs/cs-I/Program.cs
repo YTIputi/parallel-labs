@@ -11,6 +11,24 @@ using System.Threading.Tasks;
 
 class Program
 {
+    // Замер: один прогревочный прогон (JIT, запуск потоков пула) + R замеров, берётся медиана
+    const int R = 5;
+    static double Measure(Action body)
+    {
+        body();
+        double[] t = new double[R];
+        var sw = new Stopwatch();
+        for (int r = 0; r < R; r++)
+        {
+            sw.Restart();
+            body();
+            sw.Stop();
+            t[r] = sw.Elapsed.TotalSeconds;
+        }
+        Array.Sort(t);
+        return t[R / 2];
+    }
+
     static double F(double x)
     {
         int M = Math.Max(20, (int)Math.Floor(20 * Math.Abs(x)));
@@ -45,30 +63,28 @@ class Program
         double[] Yseq = new double[N + 1];
         double[] Ypar = new double[N + 1];
 
-        F(1.0);   // прогрев: первый вызов включает JIT-компиляцию, её не должно быть в замере
-
         // Последовательно: оператор for
-        var sw = Stopwatch.StartNew();
-        for (int n = 0; n <= N; n++)
-            Yseq[n] = F(X[n]);
-        sw.Stop();
-        double tSeq = sw.Elapsed.TotalSeconds;
+        double tSeq = Measure(() =>
+        {
+            for (int n = 0; n <= N; n++)
+                Yseq[n] = F(X[n]);
+        });
 
         // Параллельно: Parallel.For (верхняя граница не включается, поэтому N + 1)
-        sw.Restart();
-        Parallel.For(0, N + 1, n =>
+        double tPar = Measure(() =>
         {
-            Ypar[n] = F(X[n]);   // каждая итерация пишет в свою ячейку — гонки нет
+            Parallel.For(0, N + 1, n =>
+            {
+                Ypar[n] = F(X[n]);   // каждая итерация пишет в свою ячейку — гонки нет
+            });
         });
-        sw.Stop();
-        double tPar = sw.Elapsed.TotalSeconds;
 
         double maxDiff = 0;
         for (int n = 0; n <= N; n++)
             maxDiff = Math.Max(maxDiff, Math.Abs(Yseq[n] - Ypar[n]));
 
         Console.WriteLine("## Task I (C#), variant 7: for vs Parallel.For\n");
-        Console.WriteLine($"N = {N} (n = 0..{N}), processors = {Environment.ProcessorCount}\n");
+        Console.WriteLine($"N = {N} (n = 0..{N}), processors = {Environment.ProcessorCount}, time = median of {R} runs\n");
         Console.WriteLine("| Version | Time, s |\n|---|---|");
         Console.WriteLine($"| for | {tSeq:F4} |");
         Console.WriteLine($"| Parallel.For | {tPar:F4} |\n");
